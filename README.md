@@ -10,6 +10,10 @@ Portfolio-ready AML monitoring system with a FastAPI backend and a React analyst
 - Async pipeline (demo): Celery + Redis
 - UI: React (Vite)
 
+## Deployment (planned)
+
+This is currently a local-first portfolio demo. A public deployment is planned for a future iteration (containerized API + hosted frontend + managed Postgres), and this README will be updated when that’s ready.
+
 ## Run (recommended)
 
 This starts **API + Celery worker + Redis**:
@@ -24,75 +28,6 @@ docker compose up --build
 
 API: `http://localhost:8000/api/v1`  
 Swagger: `http://localhost:8000/docs`
-
-## Docker (production-style)
-
-Builds and runs **API + Celery worker + Redis + Nginx (serving the React build)**:
-
-```bash
-cp .env.example .env  # macOS/Linux
-# or (PowerShell)
-Copy-Item .env.example .env
-
-# recommended for production-style runs
-docker compose -f docker-compose.prod.yml up --build
-```
-
-Frontend (Nginx): `http://localhost:8080`  
-API (proxied): `http://localhost:8080/api/v1`
-
-For a real deployment, set `DEBUG=false` and use Postgres instead of SQLite.
-
-## Deploy (Render + Vercel)
-
-This repo includes `render.yaml` to deploy:
-- Render: API (web) only (free-tier friendly)
-- Vercel: frontend (Vite)
-
-Render:
-- Create a new Render Blueprint from this repo (it will pick up `render.yaml`).
-- Set `ALLOWED_ORIGINS` to your Vercel URL (and keep `DEBUG=false`).
-- (Recommended) add Postgres and set `DATABASE_URL` so data persists.
-- Note: Celery/Redis async demo endpoints are **local-only** and will be disabled on Render (`/transactions/async` and `/transactions/tasks/*` return 404).
-
-Vercel:
-- Import the `frontend/` project.
-- Set env var `VITE_API_BASE_URL` to `https://<your-render-api>/api/v1`.
-
-## Deploy (single VM, free-tier friendly)
-
-If you want a **fully free** deployment (API + worker + Redis + frontend) without paying for managed Redis/workers,
-deploy the Docker Compose stack to a single VM.
-
-1) VM prerequisites
-- Ubuntu VM with Docker + Docker Compose plugin installed
-- Inbound firewall opened for **TCP 8080** (preferably restricted to your IP)
-
-2) Configure environment
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-- `DEBUG=false` (disables dev-only training/evaluate endpoints)
-- `APP_ENV=prod`
-- `ALLOWED_ORIGINS=http://<VM_PUBLIC_IP>:8080`
-- `REDIS_URL=redis://redis:6379/0`
-
-3) Start the stack
-
-```bash
-docker compose -f docker-compose.prod.yml up --build -d
-docker compose -f docker-compose.prod.yml ps
-```
-
-Open: `http://<VM_PUBLIC_IP>:8080`
-
-Notes:
-- The default ML model file is `src/app/ml/models/xgb_aml_v1.joblib`. With `DEBUG=false`, the app will **score using this file**.
-- To train/evaluate in the deployed app, run it locally with `DEBUG=true` (intended for development only).
-- Stop: `docker compose -f docker-compose.prod.yml down`
 
 ## Run locally (no Docker)
 
@@ -125,14 +60,6 @@ npm run dev
 ```
 
 Frontend: `http://localhost:5173` (proxies `/api/*` to the backend).
-
-Optional `frontend/.env`:
-
-```bash
-VITE_API_BASE_URL=http://localhost:8000/api/v1
-```
-
-When running the production-style Docker stack (`docker-compose.prod.yml`), **do not** set `VITE_API_BASE_URL` to `http://localhost:8000/...` unless you also publish the API port. The Docker frontend is served from `http://localhost:8080` and expects same-origin API requests via `/api/v1`.
 
 ## Demo Script (end-to-end)
 
