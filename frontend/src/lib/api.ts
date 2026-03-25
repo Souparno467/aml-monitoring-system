@@ -3,12 +3,8 @@ import type { ApiError } from "./types";
 const DEFAULT_BASE = "/api/v1";
 
 function getBaseUrl() {
-  const env = import.meta.env as unknown as {
-    VITE_API_BASE_URL?: string;
-    VITE_API_BASE_URL?: string;
-  };
-  // Support both names to avoid deploy-time env var typos.
-  return (env.VITE_API_BASE_URL || env.VITE_API_BASE_URL || DEFAULT_BASE).replace(/\/+$/, "");
+  const env = import.meta.env as unknown as { VITE_API_BASE_URL?: string };
+  return (env.VITE_API_BASE_URL || DEFAULT_BASE).replace(/\/+$/, "");
 }
 
 async function readErrorMessage(res: Response): Promise<string> {
