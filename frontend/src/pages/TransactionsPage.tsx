@@ -9,7 +9,8 @@ import type {
   TransactionOut,
   TransactionScoreIn,
   TransactionScoreOut,
-  RiskExplainOut
+  RiskExplainOut,
+  RiskModelInfoOut
 } from "../lib/types";
 
 function pillKindFromRisk(label: string) {
@@ -92,6 +93,7 @@ function makeRandomScoreSample(): TransactionScoreIn {
 }
 
 export default function TransactionsPage() {
+  const [canAsync, setCanAsync] = useState(false);
   const [list, setList] = useState<TransactionListOut | null>(null);
   const [loading, setLoading] = useState(false);
   const [skip, setSkip] = useState(0);
@@ -171,6 +173,18 @@ export default function TransactionsPage() {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const info = await apiGet<RiskModelInfoOut>("/risk/model");
+        setCanAsync(Boolean(info?.debug));
+      } catch {
+        setCanAsync(false);
+      }
+    })();
+  }, []);
+
 
   const rows = useMemo(() => list?.results || [], [list]);
 
@@ -592,12 +606,16 @@ export default function TransactionsPage() {
               <Button onClick={submit} disabled={creating}>
                 {creating ? "Submitting..." : "Submit"}
               </Button>
-              <Button variant="secondary" onClick={submitAsync} disabled={creating}>
-                Submit Async
-              </Button>
-              <Button variant="secondary" onClick={checkAsyncTask} disabled={!asyncTaskId}>
-                Check Task
-              </Button>
+              {canAsync ? (
+                <>
+                  <Button variant="secondary" onClick={submitAsync} disabled={creating}>
+                    Submit Async
+                  </Button>
+                  <Button variant="secondary" onClick={checkAsyncTask} disabled={!asyncTaskId}>
+                    Check Task
+                  </Button>
+                </>
+              ) : null}
             </div>
           }
         >
@@ -792,7 +810,7 @@ export default function TransactionsPage() {
               </div>
             ) : null}
 
-            {asyncTaskId ? (
+            {canAsync && asyncTaskId ? (
               <div className="card" style={{ boxShadow: "none", padding: 12, borderStyle: "dashed" }}>
                 <div className="label" style={{ marginBottom: 6 }}>
                   Background Task

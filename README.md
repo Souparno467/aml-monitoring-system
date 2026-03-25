@@ -46,13 +46,14 @@ For a real deployment, set `DEBUG=false` and use Postgres instead of SQLite.
 ## Deploy (Render + Vercel)
 
 This repo includes `render.yaml` to deploy:
-- Render: API (web) + Celery worker + Redis
+- Render: API (web) only (free-tier friendly)
 - Vercel: frontend (Vite)
 
 Render:
 - Create a new Render Blueprint from this repo (it will pick up `render.yaml`).
 - Set `ALLOWED_ORIGINS` to your Vercel URL (and keep `DEBUG=false`).
 - (Recommended) add Postgres and set `DATABASE_URL` so data persists.
+- Note: Celery/Redis async demo endpoints are **local-only** and will be disabled on Render (`/transactions/async` and `/transactions/tasks/*` return 404).
 
 Vercel:
 - Import the `frontend/` project.

@@ -113,6 +113,9 @@ async def create_transaction(payload: TransactionCreate, db: AsyncSession = Depe
 async def create_transaction_async(payload: TransactionCreate):
     """Queue transaction ingestion in Celery (demo)."""
 
+    if not settings.DEBUG:
+        raise HTTPException(status_code=404, detail="Not found")
+
     if celery_app is None:
         raise HTTPException(status_code=501, detail="Celery not available")
 
@@ -146,6 +149,9 @@ async def create_transaction_async(payload: TransactionCreate):
 async def get_task(task_id: str):
     if celery_app is None:
         raise HTTPException(status_code=501, detail="Celery not available")
+
+    if not settings.DEBUG:
+        raise HTTPException(status_code=404, detail="Not found")
 
     if not await _redis_reachable():
         raise HTTPException(
