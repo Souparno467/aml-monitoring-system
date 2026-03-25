@@ -58,6 +58,41 @@ Vercel:
 - Import the `frontend/` project.
 - Set env var `VITE_API_BASE_URL` to `https://<your-render-api>/api/v1`.
 
+## Deploy (single VM, free-tier friendly)
+
+If you want a **fully free** deployment (API + worker + Redis + frontend) without paying for managed Redis/workers,
+deploy the Docker Compose stack to a single VM.
+
+1) VM prerequisites
+- Ubuntu VM with Docker + Docker Compose plugin installed
+- Inbound firewall opened for **TCP 8080** (preferably restricted to your IP)
+
+2) Configure environment
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env`:
+- `DEBUG=false` (disables dev-only training/evaluate endpoints)
+- `APP_ENV=prod`
+- `ALLOWED_ORIGINS=http://<VM_PUBLIC_IP>:8080`
+- `REDIS_URL=redis://redis:6379/0`
+
+3) Start the stack
+
+```bash
+docker compose -f docker-compose.prod.yml up --build -d
+docker compose -f docker-compose.prod.yml ps
+```
+
+Open: `http://<VM_PUBLIC_IP>:8080`
+
+Notes:
+- The default ML model file is `src/app/ml/models/xgb_aml_v1.joblib`. With `DEBUG=false`, the app will **score using this file**.
+- To train/evaluate in the deployed app, run it locally with `DEBUG=true` (intended for development only).
+- Stop: `docker compose -f docker-compose.prod.yml down`
+
 ## Run locally (no Docker)
 
 If your project uses a `src/` layout, the simplest command is:

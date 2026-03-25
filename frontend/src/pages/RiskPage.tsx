@@ -118,6 +118,8 @@ export default function RiskPage() {
     }
   }, [evalMaxRows, evalTopN, evalSplitStrategy, evalTestSize, evalRandomState, addToast]);
 
+  const canAdmin = Boolean(model?.debug);
+
   const featurePreview = useMemo(() => {
     const f = model?.feature_names || [];
     if (!f.length) return "—";
@@ -154,11 +156,15 @@ export default function RiskPage() {
             <div className="help">Type: {model?.model_type ?? "—"}</div>
             <div className="help">Features: {featurePreview}</div>
             {model?.load_error ? <div className="help">Load error: {model.load_error}</div> : null}
+            {!canAdmin ? (
+              <div className="help">Training/evaluation is disabled in production (DEBUG=false).</div>
+            ) : null}
           </div>
         </Card>
 
-        <Card
-          title="Train (DEBUG)"
+        {canAdmin ? (
+          <Card
+            title="Train (DEBUG)"
           hint="Builds a fresh model from the demo CSV. Returns metrics and saved model reference."
           right={
             <div className="inline">
@@ -241,12 +247,14 @@ export default function RiskPage() {
             )}
           </div>
         </Card>
+        ) : null}
       </div>
 
       <div style={{ height: 16 }} />
 
-      <Card
-        title="Evaluate (DEBUG)"
+      {canAdmin ? (
+        <Card
+          title="Evaluate (DEBUG)"
         hint="Computes ROC-AUC and Average Precision for ML and composite scoring."
         right={
           <div className="inline">
@@ -415,7 +423,8 @@ export default function RiskPage() {
             <div className="help">Evaluation output appears here after a successful run.</div>
           )}
         </div>
-      </Card>
+        </Card>
+      ) : null}
 
       <ToastHost toasts={toasts} onDismiss={dismissToast} />
     </>

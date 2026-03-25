@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 class RiskModelInfoOut(BaseModel):
     loaded: bool
+    debug: bool = False
     model: Optional[str] = None
     model_type: Optional[str] = None
     feature_names: Optional[list[str]] = None

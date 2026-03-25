@@ -115,6 +115,7 @@ export type AlertUpdate = {
 
 export type RiskModelInfoOut = {
   loaded: boolean;
+  debug?: boolean;
   model?: string | null;
   model_type?: string | null;
   feature_names?: string[] | null;

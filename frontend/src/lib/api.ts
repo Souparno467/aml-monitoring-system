@@ -32,10 +32,12 @@ export async function apiSend<T>(
 ): Promise<T> {
   const res = await fetch(`${getBaseUrl()}${path}`, {
     method,
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
     body: JSON.stringify(payload)
   });
   if (!res.ok) throw new Error(await readErrorMessage(res));
   return (await res.json()) as T;
 }
-

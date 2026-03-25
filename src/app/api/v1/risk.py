@@ -25,6 +25,16 @@ _FORBIDDEN_FEATURES: set[str] = {
     "_ts",
 }
 
+
+def _require_debug() -> None:
+    """Enable training/evaluation only for local development (DEBUG=true)."""
+    if settings.DEBUG:
+        return
+    # Don't reveal that the endpoint exists.
+    raise HTTPException(status_code=404, detail="Not found")
+
+
+
 def _feature_groups(model, feature_names: list[str]) -> tuple[set[str], set[str]]:
     """Best-effort (numeric_cols, categorical_cols) from the fitted pipeline."""
     numeric: set[str] = set()
@@ -87,6 +97,7 @@ async def model_info():
 
     return {
         "loaded": bool(loaded),
+        "debug": bool(settings.DEBUG),
         "model": model_name,
         "model_type": model_type,
         "feature_names": feature_names,
@@ -96,8 +107,7 @@ async def model_info():
 
 @router.post("/model/train", response_model=RiskTrainOut)
 async def train_model(payload: RiskTrainIn = Body(default=RiskTrainIn())):
-    if not settings.DEBUG:
-        raise HTTPException(status_code=404, detail="Not available")
+    _require_debug()
 
     res = train_xgb_from_csv(
         max_rows=int(payload.max_rows) if payload.max_rows else None,
@@ -133,9 +143,7 @@ async def reset_model():
 
     Portfolio convenience: retrains and overwrites the current model file.
     """
-
-    if not settings.DEBUG:
-        raise HTTPException(status_code=404, detail="Not available")
+    _require_debug()
 
     res = train_xgb_from_csv(max_rows=200000, test_size=0.2, random_state=42, split_strategy="time")
 
@@ -162,8 +170,7 @@ async def reset_model():
 
 @router.post("/evaluate", response_model=RiskEvaluateOut)
 async def evaluate(payload: RiskEvaluateIn = Body(default=RiskEvaluateIn())):
-    if not settings.DEBUG:
-        raise HTTPException(status_code=404, detail="Not available")
+    _require_debug()
 
     data_path = settings.resolve_path(settings.DATA_DIR) / "transactions.csv"
     if not data_path.exists():

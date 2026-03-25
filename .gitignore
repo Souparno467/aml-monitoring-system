@@ -13,8 +13,11 @@ aml.db
 
 # Large datasets / models (do not commit)
 src/aml_monitoring_system/data/*.csv
-src/app/ml/models/
-*.joblib
+# Keep the default trained model in-repo for deployments that run with DEBUG=false.
+# Ignore other models/artifacts by default.
+src/app/ml/models/*
+!src/app/ml/models/.gitkeep
+!src/app/ml/models/xgb_aml_v1.joblib
 *.pkl
 
 # Frontend
