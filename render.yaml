@@ -1,10 +1,15 @@
 services:
   - type: web
     name: aml-api
+    plan: free
     env: docker
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
     autoDeploy: true
+    disk:
+      name: aml-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: APP_ENV
         value: prod
@@ -12,9 +17,15 @@ services:
         value: "false"
       - key: API_PREFIX
         value: /api/v1
-      # Set this to your Vercel domain after you deploy the frontend
+      # Render demo: keep DB on a persistent disk (better than container filesystem SQLite)
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:////var/data/aml.db
+      # NOTE: CORS is not auth; this is just to make browser usage work without a domain.
       - key: ALLOWED_ORIGINS
-        value: https://YOUR_VERCEL_DOMAIN
+        value: "*"
+      # Seed some demo data so the UI isn't empty after deploy.
+      - key: AUTO_SEED_DEMO
+        value: "true"
       # Recommended: use Render Postgres instead of SQLite
       # - key: DATABASE_URL
       #   fromDatabase:
