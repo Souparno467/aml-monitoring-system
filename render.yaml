@@ -6,10 +6,6 @@ services:
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
     autoDeploy: true
-    disk:
-      name: aml-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: APP_ENV
         value: prod
@@ -17,9 +13,10 @@ services:
         value: "false"
       - key: API_PREFIX
         value: /api/v1
-      # Render demo: keep DB on a persistent disk (better than container filesystem SQLite)
+      # Free tier note: persistent disks are not supported, so SQLite will be ephemeral (resets on redeploy).
+      # For persistence on free tier, set DATABASE_URL to a free Postgres provider (Neon/Supabase/etc).
       - key: DATABASE_URL
-        value: sqlite+aiosqlite:////var/data/aml.db
+        value: sqlite+aiosqlite:///./aml.db
       # NOTE: CORS is not auth; this is just to make browser usage work without a domain.
       - key: ALLOWED_ORIGINS
         value: "*"
