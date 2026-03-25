@@ -32,7 +32,7 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     autoDeploy: true
-    startCommand: celery -A app.workers.celery_worker:celery_app worker --loglevel=info -Q transactions,alerts -c 2
+    dockerCommand: celery -A app.workers.celery_worker:celery_app worker --loglevel=info -Q transactions,alerts -c 2
     envVars:
       - key: APP_ENV
         value: prod
