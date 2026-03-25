@@ -1,0 +1,67 @@
+[tool.pytest.ini_options]
+minversion       = "7.0"
+asyncio_mode     = "auto"
+testpaths        = ["tests"]
+python_files     = ["test_*.py"]
+python_classes   = ["Test*"]
+python_functions = ["test_*"]
+addopts          = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--cov=app",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=70",
+]
+markers = [
+    "unit: fast unit tests with no I/O",
+    "integration: tests that require a real DB / Redis",
+    "slow: tests that take >2 seconds",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]
+
+# ── Coverage ──────────────────────────────────────────────────────────────────
+[tool.coverage.run]
+source    = ["app"]
+omit      = [
+    "app/db/migrations/*",
+    "app/ml/models/*",
+    "app/db/seed.py",
+]
+branch    = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+
+# ── Ruff (linting) ────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length    = 100
+target-version = "py311"
+select         = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore         = ["E501", "B008", "N803", "N806"]
+exclude        = [
+    "app/db/migrations/",
+    ".venv",
+    "__pycache__",
+]
+
+# ── Mypy ──────────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version         = "3.11"
+strict                 = false
+ignore_missing_imports = true
+exclude                = ["app/db/migrations"]
+
+# ── Build (if packaging) ──────────────────────────────────────────────────────
+[build-system]
+requires      = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"

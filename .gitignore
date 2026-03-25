@@ -1,0 +1,25 @@
+__pycache__/
+.venv/
+*.pyc
+
+# Env files (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Local demo DB
+aml.db
+*.sqlite
+
+# Large datasets / models (do not commit)
+src/aml_monitoring_system/data/*.csv
+src/app/ml/models/
+*.joblib
+*.pkl
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local

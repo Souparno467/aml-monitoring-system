@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ml_models:/app/app/ml/models
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    build: ./backend
+    env_file: .env
+    depends_on:
+      - redis
+      - api
+    command: celery -A app.workers.celery_worker worker --loglevel=info -Q transactions,alerts -c 4
+
+  beat:
+    build: ./backend
+    env_file: .env
+    depends_on:
+      - redis
+    command: celery -A app.workers.celery_worker beat --loglevel=info
+
+  flower:
+    build: ./backend
+    ports:
+      - "5555:5555"
+    env_file: .env
+    depends_on:
+      - redis
+    command: celery -A app.workers.celery_worker flower --port=5555
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  ml_models:
