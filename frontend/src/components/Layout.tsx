@@ -19,7 +19,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="appShell">
       <aside className="sidebar">
         <div className="brand">
-          <div className="brandMark" aria-hidden="true" />
           <div>
             <div className="brandTitle">Anti Money Laundering System</div>
             <div className="brandSubtitle">Analyst Console (Light Theme)</div>
@@ -45,4 +44,3 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
